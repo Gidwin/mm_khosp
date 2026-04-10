@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: mm_postgres_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: mattermost
+      POSTGRES_USER: mmuser
+      POSTGRES_PASSWORD: mmpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_mm_dev:/var/lib/postgresql/data
+      - ./:/app:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mmuser -d mattermost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mm_dev_network
+
+  mattermost:
+    image: 10.12.4-khospital:latest
+    container_name: mm_app_dev
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      MM_SQLSETTINGS_DRIVERNAME: postgres
+      MM_SQLSETTINGS_DATASOURCE: postgres://mmuser:mmpassword@postgres:5432/mattermost?sslmode=disable&connect_timeout=10
+      MM_SERVICESETTINGS_SITEURL: http://localhost:8065
+      MM_SERVICESETTINGS_LISTENADDRESS: ":8065"
+      MM_LOGSETTINGS_CONSOLELEVEL: INFO
+    ports:
+      - "8065:8065"
+    volumes:
+      - mm_data_mm_dev:/mattermost/data
+      - mm_logs_mm_dev:/mattermost/logs
+      - mm_plugins_mm_dev:/mattermost/plugins
+    networks:
+      - mm_dev_network
+
+volumes:
+  postgres_data_mm_dev:
+  mm_data_mm_dev:
+  mm_logs_mm_dev:
+  mm_plugins_mm_dev:
+
+networks:
+  mm_dev_network:
+    driver: bridge
