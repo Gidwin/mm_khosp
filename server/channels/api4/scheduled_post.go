@@ -47,11 +47,6 @@ func requireScheduledPostsEnabled(c *Context) {
 		c.Err = model.NewAppError("", "api.scheduled_posts.feature_disabled", nil, "", http.StatusBadRequest)
 		return
 	}
-
-	if c.App.Channels().License() == nil {
-		c.Err = model.NewAppError("", "api.scheduled_posts.license_error", nil, "", http.StatusBadRequest)
-		return
-	}
 }
 
 func createSchedulePost(c *Context, w http.ResponseWriter, r *http.Request) {

@@ -162,6 +162,9 @@ func GenerateClientConfig(c *model.Config, telemetryID string, license *model.Li
 	props["WranglerMoveThreadFromDirectMessageChannelEnable"] = strconv.FormatBool(*c.WranglerSettings.MoveThreadFromDirectMessageChannelEnable)
 	props["WranglerMoveThreadFromGroupMessageChannelEnable"] = strconv.FormatBool(*c.WranglerSettings.MoveThreadFromGroupMessageChannelEnable)
 
+	// Scheduled posts are available to all users regardless of license.
+	props["ScheduledPosts"] = strconv.FormatBool(*c.ServiceSettings.ScheduledPosts)
+
 	if license != nil {
 		props["ExperimentalEnableAuthenticationTransfer"] = strconv.FormatBool(*c.ServiceSettings.ExperimentalEnableAuthenticationTransfer)
 
@@ -231,7 +234,6 @@ func GenerateClientConfig(c *model.Config, telemetryID string, license *model.Li
 		if model.MinimumProfessionalLicense(license) {
 			props["EnableCustomGroups"] = strconv.FormatBool(*c.ServiceSettings.EnableCustomGroups)
 			props["PostAcknowledgements"] = "true"
-			props["ScheduledPosts"] = strconv.FormatBool(*c.ServiceSettings.ScheduledPosts)
 		}
 
 		if model.MinimumEnterpriseLicense(license) {
